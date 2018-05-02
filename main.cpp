@@ -46,7 +46,6 @@ int main() {
 
             } else {
                 std::cout << "Wrong username or password." << std::endl;
-                std::cout << '\a';
             }
 
         } else {
