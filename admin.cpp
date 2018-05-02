@@ -64,5 +64,24 @@ void viewAllUsers(User &user, mongocxx::database &db) {
 }
 
 void viewAllBooks(User &user, mongocxx::database &db) {
-    std::cout << "viewAllBooks" << std::endl;
+    //Find all books
+    auto cursor = db[BOOKS].find({});
+
+    //For all books
+    for(const bsoncxx::document::view &doc : cursor) {
+        //Find user who borrowed it
+        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
+        //Print data
+        std::cout << doc["title"].get_utf8().value
+                  << " by " << doc["author"].get_utf8().value
+                  << ", in genre " << doc["genre"].get_utf8().value;
+
+        //If it was borrowed by a user, print that info
+        if(result) {
+            std::cout << ", borrowed by " << result->view()["username"].get_utf8().value << std::endl;
+
+        } else {
+            std::cout << std::endl;
+        }
+    }
 }
