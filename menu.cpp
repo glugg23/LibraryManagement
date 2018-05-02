@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "PRIVATE.h"
+#include "admin.h"
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
@@ -28,7 +29,59 @@ void adminMenu(User &user, mongocxx::database &db) {
         return;
 
     } else {
-        std::cout << "Admin Menu\n" << std::endl;
+        std::cout << "Admin Menu\n"
+                     "\t1 - Create new user\n"
+                     "\t2 - Modify user\n"
+                     "\t3 - Delete user\n"
+                     "\t4 - Create new book\n"
+                     "\t5 - Modify book\n"
+                     "\t6 - Delete book\n"
+                     "\t7 - View all users\n"
+                     "\t8 - View all books\n"
+                     "\t0 - Return to main menu\n"
+                     "Please enter your choice:\n" << std::endl;
+
+        int choice;
+
+        do {
+            std::cout << user.getUsername() << ": ";
+            std::cin >> choice;
+
+            switch(choice) {
+                case CREATE_USER:
+                    createUser(user, db);
+                    break;
+                case MODIFY_USER:
+                    modifyUser(user, db);
+                    break;
+                case DELETE_USER:
+                    deleteUser(user, db);
+                    break;
+                case CREATE_BOOK:
+                    createBook(user, db);
+                    break;
+                case MODIFY_BOOK:
+                    modifyBook(user, db);
+                    break;
+                case DELETE_BOOK:
+                    deleteBook(user, db);
+                    break;
+                case VIEW_ALL_USERS:
+                    viewAllUsers(user, db);
+                    break;
+                case VIEW_ALL_BOOKS:
+                    viewAllBooks(user, db);
+                    break;
+                case EXIT_A_M:
+                    //This is a really bad idea but fuck it
+                    basicMenu(user, db);
+                    break;
+                default:
+                    std::cout << "Invalid option." << std::endl;
+                    break;
+            }
+
+        } while(choice != 0);
     }
 }
 
@@ -61,7 +114,7 @@ void basicMenu(User &user, mongocxx::database &db) {
                 adminMenu(user, db);
                 break;
             case EXIT:
-                break;
+                exit(0);
             default:
                 std::cout << "Invalid option." << std::endl;
                 break;
