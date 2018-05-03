@@ -51,7 +51,34 @@ void modifyUser(User &user, mongocxx::database &db) {
 }
 
 void deleteUser(User &user, mongocxx::database &db) {
-    std::cout << "deleteUser" << std::endl;
+    std::cout << "Enter user to delete: ";
+    std::string username;
+    std::cin >> username;
+
+    if(username == user.getUsername()) {
+        //No clue how to handle this, so I just won't allow it
+        std::cout << "Not a good idea to delete your own account..." << std::endl;
+        return;
+    }
+
+    auto result = db[USERS].find_one(make_document(kvp("username", username)));
+
+    if(result) {
+        auto ids = result->view()["borrowedBooks"].get_array().value;
+
+        for(const bsoncxx::v_noabi::array::element &id : ids) {
+            db[BOOKS].update_one(
+                make_document(kvp("_id", id.get_value())),
+                make_document(kvp("$set", make_document(kvp("borrowedBy", ""))))
+            );
+        }
+
+        db[USERS].delete_one(make_document(kvp("username", username)));
+        std::cout << "User " << username << " was deleted." << std::endl;
+
+    } else {
+        std::cout << "User " << username << " does not exist." << std::endl;
+    }
 }
 
 void createBook(User &user, mongocxx::database &db) {
@@ -85,7 +112,32 @@ void modifyBook(User &user, mongocxx::database &db) {
 }
 
 void deleteBook(User &user, mongocxx::database &db) {
-    std::cout << "deleteBook" << std::endl;
+    //Flush buffer as we're now using getline rather than just cin
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::cout << "Enter title of book you wish to delete: ";
+    std::string title;
+    std::getline(std::cin, title);
+
+    auto result = db[BOOKS].find_one(make_document(kvp("title", title)));
+
+    if(result) {
+        //Find id of who borrowed the book
+        auto element = result->view()["borrowedBy"].get_value();
+
+        //Remove that book from their borrowed list
+        db[USERS].update_one(
+            make_document(kvp("_id", element)),
+            make_document(kvp("$pull", make_document(kvp("borrowedBooks", result->view()["_id"].get_oid()))))
+            );
+
+        //Then delete the book itself
+        db[BOOKS].delete_one(make_document(kvp("title", title)));
+        std::cout << "Book " << title << " was deleted." << std::endl;
+
+    } else {
+        std::cout << "Book " << title << " does not exist." << std::endl;
+    }
 }
 
 void viewAllUsers(User &user, mongocxx::database &db) {
