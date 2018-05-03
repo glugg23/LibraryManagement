@@ -8,9 +8,42 @@
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
+using bsoncxx::builder::basic::make_array;
 
 void createUser(User &user, mongocxx::database &db) {
-    std::cout << "createUser" << std::endl;
+    std::cout << "Enter account username: ";
+    std::string username;
+    std::cin >> username;
+
+    auto userResult = db[USERS].find_one(make_document(kvp("username", username)));
+
+    if(!userResult) {
+        char input;
+        std::string role = "user";
+
+        do {
+            std::cout << "Would you like to make this account a admin user? (y/n): ";
+            std::cin >> input;
+
+            if(input == 'y' || input == 'Y') {
+                role = "admin";
+                break;
+            }
+
+        } while(!(input == 'n' || input == 'N'));
+
+        auto result = db[USERS].insert_one(make_document(
+            kvp("username", username),
+            kvp("password", "password"),
+            kvp("role", role),
+            kvp("borrowedBooks", make_array())
+        ));
+
+        std::cout << "User " << username << " was created with the password 'password'." << std::endl;
+
+    } else {
+        std::cout << "This user already exists." << std::endl;
+    }
 }
 
 void modifyUser(User &user, mongocxx::database &db) {
@@ -22,7 +55,29 @@ void deleteUser(User &user, mongocxx::database &db) {
 }
 
 void createBook(User &user, mongocxx::database &db) {
-    std::cout << "createBook" << std::endl;
+    //Flush buffer as we're now using getline rather than just cin
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::cout << "Enter book title: ";
+    std::string title;
+    std::getline(std::cin, title);
+
+    std::cout << "Enter book author: ";
+    std::string author;
+    std::getline(std::cin, author);
+
+    std::cout << "Enter book genre: ";
+    std::string genre;
+    std::getline(std::cin, genre);
+
+    auto result = db[BOOKS].insert_one(make_document(
+        kvp("title", title),
+        kvp("author", author),
+        kvp("genre", genre),
+        kvp("borrowedBy", "")
+    ));
+
+    std::cout << "Book " << title << " was created." << std::endl;
 }
 
 void modifyBook(User &user, mongocxx::database &db) {
