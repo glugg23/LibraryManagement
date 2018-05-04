@@ -6,6 +6,7 @@
 
 #include "PRIVATE.h"
 #include "user.h"
+#include "menu.h"
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
@@ -17,6 +18,9 @@ int main() {
     mongocxx::database db = client["library_test"];
 
     User user;
+
+    std::cout << "Welcome, to this library management system.\n"
+                 "Please login.\n" << std::endl;
 
     do {
         std::string username, password;
@@ -51,10 +55,11 @@ int main() {
                 std::cout << "Would you like to create a new user? (y/n): ";
                 std::cin >> input;
 
-                if(input == 'y' || input == 'Y') {
+                if(input == 'y') {
                     auto result = db[USERS].insert_one(make_document(
                         kvp("username", user.getUsername()),
                         kvp("password", user.getPassword()),
+                        kvp("role", "user"),
                         kvp("borrowedBooks", make_array())
                     ));
 
@@ -63,10 +68,12 @@ int main() {
                     break;
                 }
 
-            } while(!(input == 'n' || input == 'N'));
+            } while(input != 'n');
         }
 
     } while(!user.isLoggedIn());
+
+    basicMenu(user, db);
 
     return 0;
 }
