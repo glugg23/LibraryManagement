@@ -55,7 +55,7 @@ int main() {
                 std::cout << "Would you like to create a new user? (y/n): ";
                 std::cin >> input;
 
-                if(input == 'y' || input == 'Y') {
+                if(input == 'y') {
                     auto result = db[USERS].insert_one(make_document(
                         kvp("username", user.getUsername()),
                         kvp("password", user.getPassword()),
@@ -68,7 +68,7 @@ int main() {
                     break;
                 }
 
-            } while(!(input == 'n' || input == 'N'));
+            } while(input != 'n');
         }
 
     } while(!user.isLoggedIn());

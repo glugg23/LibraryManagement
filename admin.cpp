@@ -25,12 +25,12 @@ void createUser(User &user, mongocxx::database &db) {
             std::cout << "Would you like to make this account a admin user? (y/n): ";
             std::cin >> input;
 
-            if(input == 'y' || input == 'Y') {
+            if(input == 'y') {
                 role = "admin";
                 break;
             }
 
-        } while(!(input == 'n' || input == 'N'));
+        } while(input != 'n');
 
         auto result = db[USERS].insert_one(make_document(
             kvp("username", username),
@@ -47,7 +47,46 @@ void createUser(User &user, mongocxx::database &db) {
 }
 
 void modifyUser(User &user, mongocxx::database &db) {
-    std::cout << "modifyUser" << std::endl;
+    std::cout << "Enter user to modify: ";
+    std::string username;
+    std::cin >> username;
+
+    auto result = db[USERS].find_one(make_document(kvp("username", username)));
+
+    if(result) {
+        char input;
+        std::string newUsername = username;
+        std::string password = result->view()["password"].get_utf8().value.to_string();
+
+        std::cout << "Change username? (y/n): ";
+        std::cin >> input;
+
+        if(input == 'y') {
+            std::cout << "Enter new username: ";
+            std::cin >> newUsername;
+        }
+
+        std::cout << "Change password? (y/n): ";
+        std::cin >> input;
+
+        if(input == 'y') {
+            std::cout << "Enter new password: ";
+            std::cin >> password;
+        }
+
+        db[USERS].update_one(
+            make_document(kvp("username", username)),
+            make_document(kvp("$set", make_document(
+                kvp("username", newUsername),
+                kvp("password", password)
+            )))
+        );
+
+        std::cout << "User " << username << " has been modified." << std::endl;
+
+    } else {
+        std::cout << "User " << username << " does not exist." << std::endl;
+    }
 }
 
 void deleteUser(User &user, mongocxx::database &db) {
@@ -108,7 +147,61 @@ void createBook(User &user, mongocxx::database &db) {
 }
 
 void modifyBook(User &user, mongocxx::database &db) {
-    std::cout << "modifyBook" << std::endl;
+    //Flush buffer as we're now using getline rather than just cin
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    std::cout << "Enter book to modify: ";
+    std::string title;
+    std::getline(std::cin, title);
+
+    auto result = db[BOOKS].find_one(make_document(kvp("title", title)));
+
+    if(result) {
+        //Flushes don't work here
+        std::string input;
+        std::string newTitle = title;
+        std::string author = result->view()["author"].get_utf8().value.to_string();
+        std::string genre = result->view()["genre"].get_utf8().value.to_string();
+
+        std::cout << "Change title? (y/n): ";
+        std::getline(std::cin, input);
+
+        if(input == "y") {
+            std::cout << "Enter new title: ";
+            std::getline(std::cin, newTitle);
+        }
+
+        std::cout << "Change author? (y/n): ";
+        std::getline(std::cin, input);
+
+        if(input == "y") {
+            std::cout << "Enter new author: ";
+            std::getline(std::cin, author);
+        }
+
+        std::cout << "Change genre? (y/n): ";
+        std::getline(std::cin, input);
+
+        if(input == "y") {
+            std::cout << "Enter new genre: ";
+            std::getline(std::cin, genre);
+        }
+
+        db[BOOKS].update_one(
+            make_document(kvp("title", title)),
+            make_document(kvp("$set", make_document(
+                kvp("title", newTitle),
+                kvp("author", author),
+                kvp("genre", genre)
+            )))
+        );
+
+        std::cout << "Book " << title << " has been modified." << std::endl;
+
+    } else {
+        std::cout << "Book " << title << " does not exist." << std::endl;
+    }
 }
 
 void deleteBook(User &user, mongocxx::database &db) {
