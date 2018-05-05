@@ -73,9 +73,7 @@ void adminMenu(User &user, mongocxx::database &db) {
                     viewAllBooks(user, db);
                     break;
                 case EXIT_A_M:
-                    //This is a really bad idea but fuck it
-                    basicMenu(user, db);
-                    break;
+                    return;
                 default:
                     std::cout << "Invalid option." << std::endl;
                     break;
@@ -86,6 +84,7 @@ void adminMenu(User &user, mongocxx::database &db) {
 }
 
 void basicMenu(User &user, mongocxx::database &db) {
+    Start:
     std::cout << "Main Menu\n"
                  "\t1 - Loan a book\n"
                  "\t2 - Return a book\n"
@@ -103,18 +102,18 @@ void basicMenu(User &user, mongocxx::database &db) {
         switch (choice) {
             case BOOK_LOAN:
                 loanMenu(user, db);
-                break;
+                goto Start;
             case BOOK_RETURN:
                 returnMenu(user, db);
-                break;
+                goto Start;
             case BOOK_SEARCH:
                 searchMenu(user, db);
-                break;
+                goto Start;
             case ADMIN_MENU:
                 adminMenu(user, db);
-                break;
+                goto Start;
             case EXIT:
-                exit(0);
+                return;
             default:
                 std::cout << "Invalid option." << std::endl;
                 break;
