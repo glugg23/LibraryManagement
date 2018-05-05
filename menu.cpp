@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "PRIVATE.h"
+#include "return.h"
 #include "admin.h"
 
 using bsoncxx::builder::basic::kvp;
@@ -13,7 +14,40 @@ void loanMenu(User &user, mongocxx::database &db) {
 }
 
 void returnMenu(User &user, mongocxx::database &db) {
-    std::cout << "returnMenu" << std::endl;
+    std::cout << "Return Menu\n"
+                 "\t1 - Return a book\n"
+                 "\t0 - Return to main menu\n" << std::endl;
+
+    auto result = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
+    auto books = result->view()["borrowedBooks"].get_array().value;
+
+    std::cout << "You have borrowed these books: " << std::endl;
+
+    for(const bsoncxx::v_noabi::array::element &id : books) {
+        auto book = db[BOOKS].find_one(make_document(kvp("_id", id.get_value())));
+        std::cout << book->view()["title"].get_utf8().value
+                  << " by " << book->view()["author"].get_utf8().value << std::endl;
+    }
+    std::cout << std::endl;
+
+    int choice;
+
+    do {
+        std::cout << user.getUsername() << ": ";
+        std::cin >> choice;
+
+        switch(choice) {
+            case RETURN_BOOK:
+                returnBook(user, db);
+                break;
+            case EXIT_R_M:
+                return;
+            default:
+                std::cout << "Invalid option." << std::endl;
+                break;
+        }
+
+    } while(choice != 0);
 }
 
 void searchMenu(User &user, mongocxx::database &db) {
