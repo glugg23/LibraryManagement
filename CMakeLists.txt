@@ -3,7 +3,7 @@ project(LibraryManagement)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(LibraryManagement PRIVATE.h main.cpp user.cpp user.h menu.cpp menu.h admin.cpp admin.h)
+add_executable(LibraryManagement PRIVATE.h main.cpp user.cpp user.h menu.cpp menu.h admin.cpp admin.h return.cpp return.h)
 
 find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
