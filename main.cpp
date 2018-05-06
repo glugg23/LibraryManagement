@@ -13,6 +13,7 @@ using bsoncxx::builder::basic::make_document;
 using bsoncxx::builder::basic::make_array;
 
 int main() {
+    //Create connect to database
     mongocxx::instance instance{};
     mongocxx::client client{mongocxx::uri{DATABASE_LOGIN}};
     mongocxx::database db = client["library_test"];
@@ -33,13 +34,13 @@ int main() {
         user(username, password);
 
         //Find if document matching username exists
-        core::optional<bsoncxx::document::value> maybeDoc
-            = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
+        auto maybeDoc = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
 
         if(maybeDoc) {
             //Get element in password row
             auto element = maybeDoc->view()["password"];
 
+            //If passwords match
             if(user.getPassword() == element.get_utf8().value.to_string()) {
                 user.toggleLoggedIn();
                 std::cout << "You have successfully logged in!" << std::endl;
@@ -49,7 +50,9 @@ int main() {
             }
 
         } else {
+            //If the user doesn't exist, give the option to create that user
             std::cout << "This user does not exist." << std::endl;
+
             char input;
             do {
                 std::cout << "Would you like to create a new user? (y/n): ";
@@ -73,6 +76,7 @@ int main() {
 
     } while(!user.isLoggedIn());
 
+    //Once user is logged in, run menu
     basicMenu(user, db);
 
     return 0;

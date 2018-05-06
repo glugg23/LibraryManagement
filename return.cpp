@@ -15,9 +15,11 @@ void returnBook(User &user, mongocxx::database &db) {
     std::string title;
     std::getline(std::cin, title);
 
+    //Find user and get array of borrowed books
     auto dbUser = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
     auto array = dbUser->view()["borrowedBooks"].get_array().value;
 
+    //Shows error but still works
     for(const bsoncxx::v_noabi::array::element &book : array) {
         auto dbBook = db[BOOKS].find_one(make_document(kvp("_id", book.get_value())));
 
@@ -38,6 +40,7 @@ void returnBook(User &user, mongocxx::database &db) {
         }
     }
 
+    //Check if book exists
     auto bookTest = db[BOOKS].find_one(make_document(kvp("title", title)));
 
     if(!bookTest) {
