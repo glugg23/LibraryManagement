@@ -19,6 +19,7 @@ void createUser(User &user, mongocxx::database &db) {
     std::string password;
     std::cin >> password;
 
+    //Check is user exists already
     auto userResult = db[USERS].find_one(make_document(kvp("username", username)));
 
     if(!userResult) {
@@ -40,8 +41,8 @@ void createUser(User &user, mongocxx::database &db) {
             kvp("username", username),
             kvp("password", password),
             kvp("role", role),
-            kvp("borrowedBooks", make_array())
-        ));
+            kvp("borrowedBooks", make_array()))
+        );
 
         std::cout << "User " << username << " was created with the password " << password << "." << std::endl;
 
@@ -59,6 +60,7 @@ void modifyUser(User &user, mongocxx::database &db) {
 
     if(result) {
         char input;
+        //Set these to what they already are so we can do easier updates
         std::string newUsername = username;
         std::string password = result->view()["password"].get_utf8().value.to_string();
 
@@ -109,6 +111,7 @@ void deleteUser(User &user, mongocxx::database &db) {
     if(result) {
         auto ids = result->view()["borrowedBooks"].get_array().value;
 
+        //Shows error but still works
         for(const bsoncxx::v_noabi::array::element &id : ids) {
             db[BOOKS].update_one(
                 make_document(kvp("_id", id.get_value())),
@@ -162,7 +165,7 @@ void modifyBook(User &user, mongocxx::database &db) {
     auto result = db[BOOKS].find_one(make_document(kvp("title", title)));
 
     if(result) {
-        //Flushes don't work here
+        //Set these to what they already are so we can do easier updates
         std::string input;
         std::string newTitle = title;
         std::string author = result->view()["author"].get_utf8().value.to_string();
@@ -226,7 +229,7 @@ void deleteBook(User &user, mongocxx::database &db) {
         db[USERS].update_one(
             make_document(kvp("_id", element)),
             make_document(kvp("$pull", make_document(kvp("borrowedBooks", result->view()["_id"].get_oid()))))
-            );
+        );
 
         //Then delete the book itself
         db[BOOKS].delete_one(make_document(kvp("title", title)));
@@ -252,6 +255,7 @@ void viewAllUsers(User &user, mongocxx::database &db) {
         std::cout << "Loaned books:" << std::endl;
 
         //For all book ids in borrowed book array
+        //Shows error but still works
         for(const bsoncxx::v_noabi::array::element &id : ids) {
             //Find corresponding book document
             auto result = db[BOOKS].find_one(make_document(kvp("_id", id.get_value())));
@@ -259,10 +263,8 @@ void viewAllUsers(User &user, mongocxx::database &db) {
             //Print title and author
             std::cout << result->view()["title"].get_utf8().value
                       << " by " << result->view()["author"].get_utf8().value << std::endl;
-
-            //std::cout << bsoncxx::to_json(*result) << std::endl;
         }
-        //std::cout << bsoncxx::to_json(doc) << std::endl;
+
         std::cout << std::endl;
     }
 }
@@ -272,6 +274,7 @@ void viewAllBooks(User &user, mongocxx::database &db) {
     auto cursor = db[BOOKS].find({});
 
     //For all books
+    //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
         //Find user who borrowed it
         auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));

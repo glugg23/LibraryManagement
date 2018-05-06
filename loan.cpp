@@ -15,13 +15,13 @@ void loanBook(User &user, mongocxx::database &db) {
     std::string title;
     std::getline(std::cin, title);
 
+    //Find current user and book that they wish to borrow
     auto dbUser = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
     auto dbBook = db[BOOKS].find_one(make_document(kvp("title", title)));
 
     if(dbBook) {
-        auto type = dbBook->view()["borrowedBy"].get_value();
-
-        if(type.type() == bsoncxx::type::k_utf8) {
+        //Check value of this field to see if it's been borrowed or not
+        if(dbBook->view()["borrowedBy"].get_value().type() == bsoncxx::type::k_utf8) {
             db[BOOKS].update_one(
                 make_document(kvp("title", title)),
                 make_document(kvp("$set", make_document(kvp("borrowedBy", dbUser->view()["_id"].get_oid()))))

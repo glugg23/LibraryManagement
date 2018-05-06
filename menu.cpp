@@ -16,8 +16,8 @@ void loanMenu(User &user, mongocxx::database &db) {
                  "\t0 - Return to main menu\n"
                  "Please enter your choice:\n" << std::endl;
 
+    //Get menu choice
     int choice;
-
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
@@ -42,20 +42,24 @@ void returnMenu(User &user, mongocxx::database &db) {
                  "\t0 - Return to main menu\n"
                  "Please enter your choice:\n" << std::endl;
 
+    //Find user and get all the books they have borrowed
     auto result = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
     auto books = result->view()["borrowedBooks"].get_array().value;
 
     std::cout << "You have borrowed these books: " << std::endl;
 
+    //Shows error but still works
     for(const bsoncxx::v_noabi::array::element &id : books) {
+        //Finds book with current id and prints info
         auto book = db[BOOKS].find_one(make_document(kvp("_id", id.get_value())));
+
         std::cout << book->view()["title"].get_utf8().value
                   << " by " << book->view()["author"].get_utf8().value << std::endl;
     }
     std::cout << std::endl;
 
+    //Get menu choice
     int choice;
-
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
@@ -79,6 +83,7 @@ void searchMenu(User &user, mongocxx::database &db) {
 }
 
 void adminMenu(User &user, mongocxx::database &db) {
+    //Checks to make sure user is an admin
     auto document = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
     auto element = document->view()["role"];
 
@@ -99,8 +104,8 @@ void adminMenu(User &user, mongocxx::database &db) {
                      "\t0 - Return to main menu\n"
                      "Please enter your choice:\n" << std::endl;
 
+        //Get menu choice
         int choice;
-
         do {
             std::cout << user.getUsername() << ": ";
             std::cin >> choice;
@@ -151,11 +156,22 @@ void basicMenu(User &user, mongocxx::database &db) {
                  "\t0 - Exit and logout\n"
                  "Please enter your choice:\n" << std::endl;
 
+    //Get menu choice
     int choice;
-
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+
+        /* Here I am using goto statements as I want the main menu
+         * options to display each time the user exists a submenu.
+         * I thought that using goto was easy then trying to work
+         * out the logic of making this into a proper loop.
+         *
+         * This is also to avoid my previous way of doing this,
+         * which was to call a new instance of the menu after each
+         * submenu exists, which is just an ugly solution and could
+         * cause a stack overflow if not careful.
+         */
 
         switch (choice) {
             case BOOK_LOAN:
