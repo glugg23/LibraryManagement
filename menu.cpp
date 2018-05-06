@@ -16,7 +16,8 @@ void loanMenu(User &user, mongocxx::database &db) {
 void returnMenu(User &user, mongocxx::database &db) {
     std::cout << "Return Menu\n"
                  "\t1 - Return a book\n"
-                 "\t0 - Return to main menu\n" << std::endl;
+                 "\t0 - Return to main menu\n"
+                 "Please enter your choice:\n" << std::endl;
 
     auto result = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
     auto books = result->view()["borrowedBooks"].get_array().value;

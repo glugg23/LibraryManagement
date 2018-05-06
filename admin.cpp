@@ -15,6 +15,10 @@ void createUser(User &user, mongocxx::database &db) {
     std::string username;
     std::cin >> username;
 
+    std::cout << "Enter account password: ";
+    std::string password;
+    std::cin >> password;
+
     auto userResult = db[USERS].find_one(make_document(kvp("username", username)));
 
     if(!userResult) {
@@ -22,7 +26,7 @@ void createUser(User &user, mongocxx::database &db) {
         std::string role = "user";
 
         do {
-            std::cout << "Would you like to make this account a admin user? (y/n): ";
+            std::cout << "Would you like to make this account an admin user? (y/n): ";
             std::cin >> input;
 
             if(input == 'y') {
@@ -34,12 +38,12 @@ void createUser(User &user, mongocxx::database &db) {
 
         auto result = db[USERS].insert_one(make_document(
             kvp("username", username),
-            kvp("password", "password"),
+            kvp("password", password),
             kvp("role", role),
             kvp("borrowedBooks", make_array())
         ));
 
-        std::cout << "User " << username << " was created with the password 'password'." << std::endl;
+        std::cout << "User " << username << " was created with the password " << password << "." << std::endl;
 
     } else {
         std::cout << "This user already exists." << std::endl;
