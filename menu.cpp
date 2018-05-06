@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "PRIVATE.h"
+#include "loan.h"
 #include "return.h"
 #include "admin.h"
 
@@ -10,7 +11,29 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
 
 void loanMenu(User &user, mongocxx::database &db) {
-    std::cout << "loanMenu" << std::endl;
+    std::cout << "Loan Menu\n"
+                 "\t1 - Take out a book\n"
+                 "\t0 - Return to main menu\n"
+                 "Please enter your choice:\n" << std::endl;
+
+    int choice;
+
+    do {
+        std::cout << user.getUsername() << ": ";
+        std::cin >> choice;
+
+        switch(choice) {
+            case LOAN_BOOK:
+                loanBook(user, db);
+                break;
+            case EXIT_L_M:
+                return;
+            default:
+                std::cout << "Invalid option." << std::endl;
+                break;
+        }
+
+    } while(choice != 0);
 }
 
 void returnMenu(User &user, mongocxx::database &db) {
