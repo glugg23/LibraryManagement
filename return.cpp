@@ -49,4 +49,6 @@ void returnBook(User &user, mongocxx::database &db) {
     } else {
         std::cout << "You have not borrowed this book." << std::endl;
     }
+
+    std::cout << std::endl;
 }
