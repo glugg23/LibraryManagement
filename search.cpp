@@ -19,6 +19,9 @@ void searchBookTitle(User &user, mongocxx::database &db) {
     auto cursor = db[BOOKS].find(make_document(kvp("title",
         make_document(kvp("$regex", title), kvp("$options", "i")))));
 
+    std::cout << std::endl;
+
+    //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
         //Check if the book has already been borrowed
         auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
@@ -50,6 +53,9 @@ void searchBookAuthor(User &user, mongocxx::database &db) {
     auto cursor = db[BOOKS].find(make_document(kvp("author",
         make_document(kvp("$regex", author), kvp("$options", "i")))));
 
+    std::cout << std::endl;
+
+    //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
         //Check if the book has already been borrowed
         auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
@@ -81,6 +87,9 @@ void searchBookGenre(User &user, mongocxx::database &db) {
     auto cursor = db[BOOKS].find(make_document(kvp("genre",
         make_document(kvp("$regex", genre), kvp("$options", "i")))));
 
+    std::cout << std::endl;
+
+    //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
         //Check if the book has already been borrowed
         auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));

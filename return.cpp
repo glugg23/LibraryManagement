@@ -35,7 +35,7 @@ void returnBook(User &user, mongocxx::database &db) {
             );
 
             std::cout << "Book " << title << " has been returned." << std::endl;
-
+            std::cout << std::endl;
             return;
         }
     }

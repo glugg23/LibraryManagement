@@ -127,6 +127,8 @@ void deleteUser(User &user, mongocxx::database &db) {
     } else {
         std::cout << "User " << username << " does not exist." << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 void createBook(User &user, mongocxx::database &db) {
