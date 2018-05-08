@@ -5,6 +5,7 @@
 #include "PRIVATE.h"
 #include "loan.h"
 #include "return.h"
+#include "search.h"
 #include "admin.h"
 
 using bsoncxx::builder::basic::kvp;
@@ -79,7 +80,43 @@ void returnMenu(User &user, mongocxx::database &db) {
 }
 
 void searchMenu(User &user, mongocxx::database &db) {
-    std::cout << "searchMenu" << std::endl;
+    std::cout << "Search Menu\n"
+                 "\t1 - Search by title\n"
+                 "\t2 - Search by author\n"
+                 "\t3 - Search by genre\n"
+                 "\t4 - Advance search\n"
+                 "\t0 - Return to main menu\n"
+                 "Please enter your choice:\n" << std::endl;
+
+    std::cout << "There are " << db[BOOKS].count({}) << " books in this library.\n" << std::endl;
+
+    //Get menu choice
+    int choice;
+    do {
+        std::cout << user.getUsername() << ": ";
+        std::cin >> choice;
+
+        switch(choice) {
+            case SEARCH_TITLE:
+                searchBookTitle(user, db);
+                break;
+            case SEARCH_AUTHOR:
+                searchBookAuthor(user, db);
+                break;
+            case SEARCH_GENRE:
+                searchBookGenre(user, db);
+                break;
+            case SEARCH_ALL:
+                searchBookAdvanced(user, db);
+                break;
+            case EXIT_S_M:
+                return;
+            default:
+                std::cout << "Invalid option." << std::endl;
+                break;
+        }
+
+    } while(choice != 0);
 }
 
 void adminMenu(User &user, mongocxx::database &db) {

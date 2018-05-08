@@ -41,4 +41,6 @@ void loanBook(User &user, mongocxx::database &db) {
     } else {
         std::cout << "This book does not exist." << std::endl;
     }
+
+    std::cout << std::endl;
 }

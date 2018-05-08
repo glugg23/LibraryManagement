@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include <bsoncxx/json.hpp>
-
 #include "PRIVATE.h"
 
 using bsoncxx::builder::basic::kvp;
@@ -49,6 +47,8 @@ void createUser(User &user, mongocxx::database &db) {
     } else {
         std::cout << "This user already exists." << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 void modifyUser(User &user, mongocxx::database &db) {
@@ -93,6 +93,8 @@ void modifyUser(User &user, mongocxx::database &db) {
     } else {
         std::cout << "User " << username << " does not exist." << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 void deleteUser(User &user, mongocxx::database &db) {
@@ -125,6 +127,8 @@ void deleteUser(User &user, mongocxx::database &db) {
     } else {
         std::cout << "User " << username << " does not exist." << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 void createBook(User &user, mongocxx::database &db) {
@@ -151,6 +155,8 @@ void createBook(User &user, mongocxx::database &db) {
     ));
 
     std::cout << "Book " << title << " was created." << std::endl;
+
+    std::cout << std::endl;
 }
 
 void modifyBook(User &user, mongocxx::database &db) {
@@ -209,6 +215,8 @@ void modifyBook(User &user, mongocxx::database &db) {
     } else {
         std::cout << "Book " << title << " does not exist." << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 void deleteBook(User &user, mongocxx::database &db) {
@@ -238,6 +246,8 @@ void deleteBook(User &user, mongocxx::database &db) {
     } else {
         std::cout << "Book " << title << " does not exist." << std::endl;
     }
+
+    std::cout << std::endl;
 }
 
 void viewAllUsers(User &user, mongocxx::database &db) {
@@ -291,4 +301,6 @@ void viewAllBooks(User &user, mongocxx::database &db) {
             std::cout << std::endl;
         }
     }
+
+    std::cout << std::endl;
 }
