@@ -22,6 +22,11 @@ void loanMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         switch(choice) {
             case LOAN_BOOK:
@@ -64,6 +69,11 @@ void returnMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         switch(choice) {
             case RETURN_BOOK:
@@ -95,6 +105,11 @@ void searchMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         switch(choice) {
             case SEARCH_TITLE:
@@ -146,6 +161,11 @@ void adminMenu(User &user, mongocxx::database &db) {
         do {
             std::cout << user.getUsername() << ": ";
             std::cin >> choice;
+            if(!std::cin) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                choice = -1;
+            }
 
             switch(choice) {
                 case CREATE_USER:
@@ -198,6 +218,11 @@ void basicMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         /* Here I am using goto statements as I want the main menu
          * options to display each time the user exists a submenu.
