@@ -21,10 +21,19 @@ void loanBook(User &user, mongocxx::database &db) {
 
     if(dbBook) {
         //Check value of this field to see if it's been borrowed or not
-        if(dbBook->view()["borrowedBy"].get_value().type() == bsoncxx::type::k_utf8) {
+        if(!dbBook->view()["borrowedBy"]["isBorrowed"].get_value().get_bool()) {
+            //Get the current time since epoch
+            auto time = std::chrono::system_clock::now();
+            //Add one week to it
+            time += std::chrono::hours(168);
+
             db[BOOKS].update_one(
                 make_document(kvp("title", title)),
-                make_document(kvp("$set", make_document(kvp("borrowedBy", dbUser->view()["_id"].get_oid()))))
+                make_document(kvp("$set", make_document(kvp("borrowedBy",
+                make_document(
+                    kvp("user", dbUser->view()["_id"].get_oid()),
+                    kvp("date", bsoncxx::types::b_date(time)),
+                    kvp("isBorrowed", true))))))
             );
 
             db[USERS].update_one(

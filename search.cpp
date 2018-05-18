@@ -23,14 +23,11 @@ void searchBookTitle(User &user, mongocxx::database &db) {
 
     //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
-        //Check if the book has already been borrowed
-        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
-
         std::cout << doc["title"].get_utf8().value
                   << " by " << doc["author"].get_utf8().value
                   << ", in genre " << doc["genre"].get_utf8().value;
 
-        if(result) {
+        if(doc["borrowedBy"]["isBorrowed"].get_bool()) {
             std::cout << ", currently unavailable" << std::endl;
 
         } else {
@@ -57,14 +54,11 @@ void searchBookAuthor(User &user, mongocxx::database &db) {
 
     //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
-        //Check if the book has already been borrowed
-        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
-
         std::cout << doc["title"].get_utf8().value
                   << " by " << doc["author"].get_utf8().value
                   << ", in genre " << doc["genre"].get_utf8().value;
 
-        if(result) {
+        if(doc["borrowedBy"]["isBorrowed"].get_bool()) {
             std::cout << ", currently unavailable" << std::endl;
 
         } else {
@@ -91,14 +85,11 @@ void searchBookGenre(User &user, mongocxx::database &db) {
 
     //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
-        //Check if the book has already been borrowed
-        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
-
         std::cout << doc["title"].get_utf8().value
                   << " by " << doc["author"].get_utf8().value
                   << ", in genre " << doc["genre"].get_utf8().value;
 
-        if(result) {
+        if(doc["borrowedBy"]["isBorrowed"].get_bool()) {
             std::cout << ", currently unavailable" << std::endl;
 
         } else {
@@ -151,14 +142,11 @@ void searchBookAdvanced(User &user, mongocxx::database &db) {
 
     //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
-        //Check if the book has already been borrowed
-        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
-
         std::cout << doc["title"].get_utf8().value
                   << " by " << doc["author"].get_utf8().value
                   << ", in genre " << doc["genre"].get_utf8().value;
 
-        if(result) {
+        if(doc["borrowedBy"]["isBorrowed"].get_bool()) {
             std::cout << ", currently unavailable" << std::endl;
 
         } else {

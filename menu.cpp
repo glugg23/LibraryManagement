@@ -22,6 +22,11 @@ void loanMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         switch(choice) {
             case LOAN_BOOK:
@@ -53,6 +58,11 @@ void returnMenu(User &user, mongocxx::database &db) {
     for(const bsoncxx::v_noabi::array::element &id : books) {
         //Finds book with current id and prints info
         auto book = db[BOOKS].find_one(make_document(kvp("_id", id.get_value())));
+        auto date = book->view()["borrowedBy"]["date"].get_date().value;
+
+        if(date < std::chrono::system_clock::now().time_since_epoch()) {
+            std::cout << "OVERDUE: ";
+        }
 
         std::cout << book->view()["title"].get_utf8().value
                   << " by " << book->view()["author"].get_utf8().value << std::endl;
@@ -64,6 +74,11 @@ void returnMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         switch(choice) {
             case RETURN_BOOK:
@@ -95,6 +110,11 @@ void searchMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         switch(choice) {
             case SEARCH_TITLE:
@@ -146,6 +166,11 @@ void adminMenu(User &user, mongocxx::database &db) {
         do {
             std::cout << user.getUsername() << ": ";
             std::cin >> choice;
+            if(!std::cin) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                choice = -1;
+            }
 
             switch(choice) {
                 case CREATE_USER:
@@ -184,6 +209,31 @@ void adminMenu(User &user, mongocxx::database &db) {
 }
 
 void basicMenu(User &user, mongocxx::database &db) {
+    //Check for overdue books
+    auto result = db[USERS].find_one(make_document(kvp("username", user.getUsername())));
+    auto books = result->view()["borrowedBooks"].get_array().value;
+    int count = 0;
+
+    //Shows error but still works
+    for(const bsoncxx::v_noabi::array::element &id : books) {
+        auto book = db[BOOKS].find_one(make_document(kvp("_id", id.get_value())));
+        auto date = book->view()["borrowedBy"]["date"].get_date().value;
+
+        if(date < std::chrono::system_clock::now().time_since_epoch()) {
+            ++count;
+        }
+    }
+
+    //Show overall count of overdue books
+    if(count > 0) {
+        if(count == 1) {
+            std::cout << "You have 1 overdue book.\n" << std::endl;
+
+        } else {
+            std::cout << "You have " << count << " overdue books.\n" << std::endl;
+        }
+    }
+
     Start:
     std::cout << "Main Menu\n"
                  "\t1 - Loan a book\n"
@@ -198,6 +248,11 @@ void basicMenu(User &user, mongocxx::database &db) {
     do {
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
+        if(!std::cin) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            choice = -1;
+        }
 
         /* Here I am using goto statements as I want the main menu
          * options to display each time the user exists a submenu.

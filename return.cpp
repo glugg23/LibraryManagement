@@ -26,7 +26,11 @@ void returnBook(User &user, mongocxx::database &db) {
         if(dbBook->view()["title"].get_utf8().value.to_string() == title) {
             db[BOOKS].update_one(
                 make_document(kvp("_id", book.get_value())),
-                make_document(kvp("$set", make_document(kvp("borrowedBy", ""))))
+                make_document(kvp("$set", make_document(kvp("borrowedBy",
+                    make_document(
+                        kvp("user", bsoncxx::types::b_null()),
+                        kvp("date", bsoncxx::types::b_null()),
+                        kvp("isBorrowed", false))))))
             );
 
             db[USERS].update_one(

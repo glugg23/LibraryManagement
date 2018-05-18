@@ -24,16 +24,12 @@ void createUser(User &user, mongocxx::database &db) {
         char input;
         std::string role = "user";
 
-        do {
-            std::cout << "Would you like to make this account an admin user? (y/n): ";
-            std::cin >> input;
+        std::cout << "Would you like to make this account an admin user? (y/n): ";
+        std::cin >> input;
 
-            if(input == 'y') {
-                role = "admin";
-                break;
-            }
-
-        } while(input != 'n');
+        if(input == 'y') {
+            role = "admin";
+        }
 
         auto result = db[USERS].insert_one(make_document(
             kvp("username", username),
@@ -42,7 +38,12 @@ void createUser(User &user, mongocxx::database &db) {
             kvp("borrowedBooks", make_array()))
         );
 
-        std::cout << "User " << username << " was created with the password " << password << "." << std::endl;
+        if(role == "admin") {
+            std::cout << "Admin " << username << " was created with the password " << password << "." << std::endl;
+
+        } else {
+            std::cout << "User " << username << " was created with the password " << password << "." << std::endl;
+        }
 
     } else {
         std::cout << "This user already exists." << std::endl;
@@ -117,7 +118,11 @@ void deleteUser(User &user, mongocxx::database &db) {
         for(const bsoncxx::v_noabi::array::element &id : ids) {
             db[BOOKS].update_one(
                 make_document(kvp("_id", id.get_value())),
-                make_document(kvp("$set", make_document(kvp("borrowedBy", ""))))
+                make_document(kvp("$set", make_document(kvp("borrowedBy",
+                    make_document(
+                        kvp("user", bsoncxx::types::b_null()),
+                        kvp("date", bsoncxx::types::b_null()),
+                        kvp("isBorrowed", false))))))
             );
         }
 
@@ -151,7 +156,11 @@ void createBook(User &user, mongocxx::database &db) {
         kvp("title", title),
         kvp("author", author),
         kvp("genre", genre),
-        kvp("borrowedBy", "")
+        kvp("borrowedBy", make_document(
+            kvp("user", bsoncxx::types::b_null()),
+            kvp("date", bsoncxx::types::b_null()),
+            kvp("isBorrowed", false)
+        ))
     ));
 
     std::cout << "Book " << title << " was created." << std::endl;
@@ -231,7 +240,7 @@ void deleteBook(User &user, mongocxx::database &db) {
 
     if(result) {
         //Find id of who borrowed the book
-        auto element = result->view()["borrowedBy"].get_value();
+        auto element = result->view()["borrowedBy"]["user"].get_value();
 
         //Remove that book from their borrowed list
         db[USERS].update_one(
@@ -287,7 +296,7 @@ void viewAllBooks(User &user, mongocxx::database &db) {
     //Shows error but still works
     for(const bsoncxx::document::view &doc : cursor) {
         //Find user who borrowed it
-        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"].get_value())));
+        auto result = db[USERS].find_one(make_document(kvp("_id", doc["borrowedBy"]["user"].get_value())));
         //Print data
         std::cout << doc["title"].get_utf8().value
                   << " by " << doc["author"].get_utf8().value
