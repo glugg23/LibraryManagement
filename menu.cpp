@@ -234,18 +234,17 @@ void basicMenu(User &user, mongocxx::database &db) {
         }
     }
 
-    Start:
-    std::cout << "Main Menu\n"
-                 "\t1 - Loan a book\n"
-                 "\t2 - Return a book\n"
-                 "\t3 - Search for a book\n"
-                 "\t4 - Admin Options\n"
-                 "\t0 - Exit and logout\n"
-                 "Please enter your choice:\n" << std::endl;
-
     //Get menu choice
     int choice;
     do {
+        std::cout << "Main Menu\n"
+                     "\t1 - Loan a book\n"
+                     "\t2 - Return a book\n"
+                     "\t3 - Search for a book\n"
+                     "\t4 - Admin Options\n"
+                     "\t0 - Exit and logout\n"
+                     "Please enter your choice:\n" << std::endl;
+
         std::cout << user.getUsername() << ": ";
         std::cin >> choice;
         if(!std::cin) {
@@ -254,30 +253,19 @@ void basicMenu(User &user, mongocxx::database &db) {
             choice = -1;
         }
 
-        /* Here I am using goto statements as I want the main menu
-         * options to display each time the user exists a submenu.
-         * I thought that using goto was easy then trying to work
-         * out the logic of making this into a proper loop.
-         *
-         * This is also to avoid my previous way of doing this,
-         * which was to call a new instance of the menu after each
-         * submenu exists, which is just an ugly solution and could
-         * cause a stack overflow if not careful.
-         */
-
         switch (choice) {
             case BOOK_LOAN:
                 loanMenu(user, db);
-                goto Start;
+                break;
             case BOOK_RETURN:
                 returnMenu(user, db);
-                goto Start;
+                break;
             case BOOK_SEARCH:
                 searchMenu(user, db);
-                goto Start;
+                break;
             case ADMIN_MENU:
                 adminMenu(user, db);
-                goto Start;
+                break;
             case EXIT:
                 return;
             default:
